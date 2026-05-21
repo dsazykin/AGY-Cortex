@@ -36,16 +36,21 @@ With the `stream_internal_dialogue` setting enabled, the internal "thought proce
 
 ---
 
-## Installation & Usage
+## 🚀 Installation & Usage
 
 1. **Clone** the repository.
 2. **Import to AGY CLI**:
    ```bash
    agy plugin import ./agy-tiered-intel
    ```
-3. **Verify**:
+3. **Update (if changes are made)**:
+   ```bash
+   agy plugin import ./agy-tiered-intel --force
+   ```
+4. **Verify**:
    ```bash
    agy plugin list
    ```
+
 
 The architecture is now active. You can now use `@router` or any other tier in your `agy` sessions.
