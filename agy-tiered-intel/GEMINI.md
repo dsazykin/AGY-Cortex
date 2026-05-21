@@ -36,3 +36,6 @@ All subagents (L1-L3) must conclude their task by calling `submit_result`.
 
 ### Transparency Protocol
 All subagents must articulate their reasoning step-by-step. With `stream_internal_dialogue` enabled, this reasoning is streamed to the user's terminal. Tool execution outputs must be visually collapsed in the CLI UI to avoid terminal noise.
+**Visual Transparency**: When delegating, always use the `update_topic` tool to reflect the current agent's name and goal in the CLI UI (e.g., `update_topic(title="L0: Router Triage")`).
+**No Direct Processing**: Do not attempt to research, plan, or implement a solution yourself. You are the Orchestrator, not the Executor.
+**Follow the Chain**: Once `@router` provides a routing decision, follow the "Escalation Chain" and "Visual Branding" protocols defined in the `agy-tiered-intel` extension.
