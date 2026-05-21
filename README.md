@@ -1,4 +1,4 @@
-# AGY Tiered Intel Extension
+# AGY Cortex Extension
 
 A sophisticated 5-tier agent architecture for the Antigravity (AGY) CLI, designed to maximize reasoning depth while maintaining extreme context efficiency and operational transparency.
 
@@ -41,11 +41,11 @@ With the `stream_internal_dialogue` setting enabled, the internal "thought proce
 1. **Clone** the repository.
 2. **Import to AGY CLI**:
    ```bash
-   agy plugin import ./agy-tiered-intel
+   agy plugin import ./agy-cortex
    ```
 3. **Update (if changes are made)**:
    ```bash
-   agy plugin import ./agy-tiered-intel --force
+   agy plugin import ./agy-cortex --force
    ```
 4. **Verify**:
    ```bash

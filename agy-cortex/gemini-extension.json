@@ -1,5 +1,5 @@
 {
-  "name": "agy-tiered-intel",
+  "name": "agy-cortex",
   "version": "1.0.0",
   "description": "A 5-tier agent architecture for Antigravity CLI with automated model routing and context shielding.",
   "author": "Gemini CLI",
