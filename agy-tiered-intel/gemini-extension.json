@@ -1,0 +1,13 @@
+{
+  "name": "agy-tiered-intel",
+  "version": "1.0.0",
+  "description": "A 5-tier agent architecture for Antigravity CLI with automated model routing and context shielding.",
+  "author": "Gemini CLI",
+  "settings": {
+    "stream_internal_dialogue": {
+      "type": "boolean",
+      "default": true,
+      "description": "Stream the internal reasoning and tool calls of subagents to the terminal."
+    }
+  }
+}
