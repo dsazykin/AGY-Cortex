@@ -38,15 +38,14 @@ With the `stream_internal_dialogue` setting enabled, the internal "thought proce
 
 ## Installation & Usage
 
-1. **Clone/Move** this folder into your project or extension directory.
-2. **Link the extension**:
+1. **Clone** the repository.
+2. **Import to AGY CLI**:
    ```bash
-   cd agy-tiered-intel
-   gemini extensions link .
+   agy plugin import ./agy-tiered-intel
    ```
 3. **Verify**:
    ```bash
-   gemini extensions list
+   agy plugin list
    ```
 
-The architecture is now active. The CLI will automatically follow the tiered rules for all subsequent tasks.
+The architecture is now active. You can now use `@router` or any other tier in your `agy` sessions.
