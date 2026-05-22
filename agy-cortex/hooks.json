@@ -1,0 +1,10 @@
+{
+  "visual-branding": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python ./hooks/visual_branding.py"
+      }
+    ]
+  }
+}

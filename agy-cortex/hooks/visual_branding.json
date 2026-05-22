@@ -1,0 +1,8 @@
+{
+  "PreInvocation": [
+    {
+      "type": "command",
+      "command": "powershell -Command \" 'hook fired!' | Out-File -FilePath 'C:\\Users\\yikes\\Code\\AGY Cortex\\hook_test.txt' \""
+    }
+  ]
+}
