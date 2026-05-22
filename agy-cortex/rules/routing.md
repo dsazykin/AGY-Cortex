@@ -9,11 +9,11 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
    - Read the current value of `model_routing_enabled`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
    - Save the file and output a styled, clear visual confirmation message to the user announcing the new state of model routing.
    - Do NOT run the standard execution loop or triage phase; terminate the turn and wait for the next task.
-2. **If an experimental parallel routing toggle request is detected**:
+2. **If an experimental parallel routing toggle request or `/toggle-parallel` is detected**:
    - Use your file editing tools to read `agy-cortex/config.json`.
-   - Update `experimental_parallel_routing` to `true` or `false` depending on the request.
+   - Read the current value of `experimental_parallel_routing`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
    - Save the file and output a styled, clear visual confirmation message to the user announcing the toggle state.
-   - Do NOT run the standard execution loop or triage phase for this toggle command; terminate the turn and wait for their next task.
+   - Do NOT run the standard execution loop or triage phase; terminate the turn and wait for the next task.
 3. **If it is a standard task request**: Proceed directly to the Chain of Command Orchestration Loop below.
 
 ---
