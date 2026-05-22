@@ -10,8 +10,11 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
    - `route_to`: the target subagent tier (`librarian`, `junior`, `engineer`, `senior`, or `architect`)
    - `reason`: a brief description of the decision.
 3. **Announce Selection:** Before spawning the target subagent, you MUST output a visible message to the user announcing the chosen tier and quoting the specific `reason` returned by the router.
-4. **Execute Delegation:** Spawn the target subagent tier using the `invoke_subagent` tool and forward the user's original request.
-5. **Finalize & Deliver**: Wait for the delegated subagent to finish.
+4. **Execute Delegation (with Blackboard Initialization):**
+   - If the routed target subagent is **L2 (Junior)** or **L3 (Core Engineer)**, the Orchestrator MUST first spawn the **L1 (Librarian)** subagent (`librarian.json`) via `invoke_subagent` with the original request to perform codebase mapping and initialize the `.session_map.json` blackboard file at the repository root. During initialization, the blackboard file MUST be automatically appended to the project's `.gitignore` file to guarantee it is never tracked by VCS.
+   - Once L1 successfully completes its discovery scan and writes `.session_map.json`, the Orchestrator then spawns the target subagent (**L2** or **L3**), forwarding the original request and directing the subagent to read `.session_map.json`.
+   - If the routed target is any other subagent (**L1**, **L4**, or **L5**), spawn the target subagent directly.
+5. **Finalize, Clean up & Deliver**: Wait for the delegated subagent(s) to finish.
    - **System-Level Hook (Visual Branding)**: You MUST automatically prepend the correct agent identifier to any subagent output before delivering it to the user or continuing further. Do not rely on the subagents themselves to output the visual branding.
      - L0 (Router): `>>> [L0 | ROUTER | Gemini 2.5 Flash Lite]`
      - L1 (Librarian): `>>> [L1 | LIBRARIAN | Gemini 2.5 Flash Lite]`
@@ -23,7 +26,8 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
    - **Draft-then-Verify Handoff**: If the executed subagent was **L2 (Junior)**, `status` is `"success"`, and files were modified:
      - You MUST automatically trigger the **Draft-then-Verify Pipeline** by immediately spawning **L3 (Core Engineer)** via `invoke_subagent`.
      - Forward L2's output and the list of modified files as context, instructing L3 to run the full test and verification suites, fix any integration bugs, and verify complete system compatibility.
-     - Wait for L3 to complete execution and deliver L3's verified final report.
-   - **Otherwise**: Prepend the correct agent identifier corresponding to the executed subagent and deliver the final response to the user.
+     - Wait for L3 to complete execution.
+   - **Blackboard Clean Up**: Once the overall execution has completed successfully (after any reviews, verifications, and L2-to-L3 pipelines have succeeded), the Orchestrator MUST delete `.session_map.json` to keep the user's workspace clean and pristine.
+   - **Delivery**: Prepend the correct agent identifier corresponding to the final executed subagent and deliver the final response to the user.
 
 
