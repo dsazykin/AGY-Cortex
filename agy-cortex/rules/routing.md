@@ -27,7 +27,10 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
      - You MUST automatically trigger the **Draft-then-Verify Pipeline** by immediately spawning **L3 (Core Engineer)** via `invoke_subagent`.
      - Forward L2's output and the list of modified files as context, instructing L3 to run the full test and verification suites, fix any integration bugs, and verify complete system compatibility.
      - Wait for L3 to complete execution.
+   - **Automated Intent Alignment Review**: If the executed subagent was a Strategy Tier (**L4 Senior** or **L5 Architect**) and files were modified:
+     - The Orchestrator MUST automatically execute `git diff HEAD` (using `run_command` or native tools) to capture all changes.
+     - The Orchestrator MUST then spawn the **L4 Senior** subagent (`senior.json`) via `invoke_subagent` to evaluate this diff against the original user prompt.
+     - Instruct L4 to evaluate if the changes perfectly align with the user's design intent, returning `status: "success"` if aligned, or `status: "escalation"` with detailed feedback of specific mismatches.
+     - If L4 returns `"escalation"` (unaligned), the Orchestrator MUST block termination, display L4's feedback to the user, and re-delegate the task back to the execution/strategy agents to self-correct.
    - **Blackboard Clean Up**: Once the overall execution has completed successfully (after any reviews, verifications, and L2-to-L3 pipelines have succeeded), the Orchestrator MUST delete `.session_map.json` to keep the user's workspace clean and pristine.
    - **Delivery**: Prepend the correct agent identifier corresponding to the final executed subagent and deliver the final response to the user.
-
-

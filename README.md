@@ -2,6 +2,8 @@
 
 A sophisticated, globally installable plugin for the Antigravity (AGY) CLI. AGY Cortex replaces a single "do-it-all" model with a specialized team of expert agents, automatically routing your prompts to the most appropriate tier to maximize reasoning depth while maintaining extreme context efficiency and operational transparency.
 
+---
+
 ## The 5-Tier Architecture
 
 The plugin uses a flat `agents/` directory structure containing distinct agent tiers, each optimized for specific responsibilities. Prompt routing is handled automatically based on the logic defined in the `rules/routing.md` file.
@@ -9,37 +11,54 @@ The plugin uses a flat `agents/` directory structure containing distinct agent t
 | Tier | Agent | LLM Model | Primary Responsibility |
 | :--- | :--- | :--- | :--- |
 | **L0** | **Router** | `Gemini 2.5 Flash Lite` | Prompt triage, clarification, and subagent routing. |
-| **L1** | **Librarian** | `Gemini 2.5 Flash Lite` | Codebase exploration, search, and summarization. |
-| **L2** | **Junior** | `Gemini 3.1 Flash` | Boilerplate, minor edits, and simple formatting. |
-| **L3** | **Engineer** | `Gemini 3.5 Flash` | Feature implementation, bug fixes, and testing. |
-| **L4** | **Senior** | `Gemini 3.1 Pro` | Deep debugging, complex refactoring, and peer review. |
-| **L5** | **Architect** | `Gemini 3.5 Pro` | System design, architectural pivots, and strategy. |
+| **L1** | **Librarian** | `Gemini 2.5 Flash Lite` | Codebase exploration, context filtering, and blackboard creation. |
+| **L2** | **Junior** | `Gemini 3.1 Flash` | High-output drafting (boilerplates, mock files, migrations) & syntax checks. |
+| **L3** | **Engineer** | `Gemini 3.5 Flash` | Full feature implementations, testing sweeps, and integration verification. |
+| **L4** | **Senior** | `Gemini 3.1 Pro` | Review, strategic debugging, and automatic ADR curation. |
+| **L5** | **Architect** | `Gemini 3.5 Pro` | High-level system design, strategic pivots, and core invariants owner. |
 
 ---
 
-## How It Operates
+## Advanced Systems & Operational Mechanics
 
-### 1. Automatic Prompt Routing
-The plugin evaluates your prompts against the criteria defined in `rules/routing.md`. It automatically determines the required agent tier—from Librarian up to Architect—and seamlessly routes the task to ensure the most efficient problem resolution.
+### 1. Two-Tiered Shared Memory & Context Filtering
+To solve long-term context window bloat and eliminate API token waste, the plugin establishes a two-tiered memory architecture:
+* **Tier 1: Master Focal Registry & ADR Archive**: 
+  - `CONTEXT.md` acts as a lightweight focal registry containing the **Active Focal Task**, a high-signal index table of archived ADRs, and active global invariants.
+  - Historic Architectural Decision Records (ADRs) are archived locally under `.antigravitycli/adr/adr-XXX.md` to keep `CONTEXT.md` lean.
+* **Tier 2: Active Session Blackboard (`.session_map.json`)**: 
+  - A temporary runtime file generated at the project root and automatically ignored via `.gitignore` to keep git history pristine.
+* **Dynamic L1 Context Filter**: On boot, the L1 Librarian reads `CONTEXT.md`, filters *only* the specific active invariants relevant to the active task, and writes them to the blackboard.
+* **Execution Bypass**: L2 and L3 bypass reading `CONTEXT.md` entirely, reading strictly from `.session_map.json` to achieve zero token waste and ultra-fast boot times.
+* **Automated Curation**: When a strategic task is closed out, L4 Senior and L5 Architect agents automatically archive details into a new ADR markdown file under `.antigravitycli/adr/` and clear the active task in `CONTEXT.md`.
 
-### 2. Context Shielding & Tool Proxying
-To prevent session contexts from becoming bloated and slow, the architecture enforces **Context Shielding**:
-- **Strategy Tiers (Senior/Architect)** focus on high-level planning and delegate execution.
-- **Execution Tiers (Junior/Engineer)** handle the "heavy lifting" of direct file modifications and testing.
-- **The Librarian** conducts broad repository searches and returns only concise, relevant summaries.
+### 2. The Draft-then-Verify Pipeline
+To optimize token usage during heavy generation:
+* **L2 Junior** is upgraded to a high-output drafting engine (boilerplates, REST scaffolds, unit test frames) equipped with syntax-checking tools to check for errors before submitting.
+* Once L2 succeeds, the orchestrator automatically triggers the pipeline, spawning **L3 Core Engineer** to run full test suites, verify integration, and guarantee complete compatibility.
 
-### 3. The Escalation Chain
-The system is built for resilience and self-correction. If an execution agent (like Junior or Engineer) fails to resolve a task after multiple attempts (e.g., repeatedly failing tests or linters), they are mandated to abort and escalate. This escalation process passes the context and failure logs upward for a higher-tier strategic review.
+### 3. Dynamic Re-routing Protocol
+If an execution agent (L2/L3) self-assesses that a task's complexity exceeds its technical boundary (e.g. L2 needs deep logical troubleshooting or L3 needs high-level design changes), it aborts and returns `"status": "re-route"`. The Orchestrator immediately intercepts this and triggers a refined triage through the L0 Router.
 
-### 4. Opt-In Shared Memory (`CONTEXT.md`)
-AGY Cortex supports a powerful, opt-in shared memory tier via `CONTEXT.md`.
-By placing a `CONTEXT.md` file at the root of any project, you can define global invariants, architectural decision records (ADRs), and preferred workflows. Every agent in the Cortex is mandated to read this file upon activation, guaranteeing that the entire team remains perfectly aligned with your project's specific guidelines.
+### 4. Visual Branding Hook
+We utilize a system-level hook (`PreInvocation` mapped to `hooks/visual_branding.py`) that handles formatting and prepending agent headers (e.g. `>>> [L3 | ENGINEER | Gemini 3.5 Flash]`) at the system level. Prompts remain 100% focused on logic rather than header formatting.
+
+### 5. Automated Intent Alignment Review (Native Subagent Verification)
+To safeguard system design and quality, the Orchestrator implements a native, subagent-driven intent alignment review in Step 5 of the routing loop:
+* **Trigger Condition**: Automatically triggers after any Strategy Tier (**L4 Senior** or **L5 Architect**) completes a task and makes modifications.
+* **Alignment Analysis**: The Orchestrator automatically captures the working tree modifications via `git diff HEAD` and spawns the **L4 Senior** subagent (`senior.json`) using `invoke_subagent`.
+* **Self-Correction**: If L4 identifies any deviations or mismatches, it returns detailed, constructive feedback. The Orchestrator blocks session conclusion, surfaces the feedback, and re-delegates the task back to the execution/strategy agents to self-correct.
 
 ---
 
-## Installation & Usage
+## Installation & Setup Requirements
 
-1. **Clone** the repository.
+### Environment Requirements
+* **Python**: Python 3.x is required for executing the pre-invocation visual branding hook.
+
+### Installation Steps
+
+1. **Clone** the repository to your local machine.
 2. **Validate the plugin structure**:
    ```bash
    agy plugin validate ./agy-cortex
@@ -57,4 +76,4 @@ By placing a `CONTEXT.md` file at the root of any project, you can define global
    agy plugin list
    ```
 
-Once installed, the AGY Cortex architecture is active across your environments. Submit your tasks normally, and the intelligent routing will automatically engage the right expert for the job!
+Submit your tasks normally, and the intelligent routing will automatically engage the right expert for the job!

@@ -6,13 +6,5 @@
         "command": "python ./hooks/visual_branding.py"
       }
     ]
-  },
-  "intent-alignment-checker": {
-    "Stop": [
-      {
-        "type": "command",
-        "command": "python ./hooks/intent_alignment.py"
-      }
-    ]
   }
 }
