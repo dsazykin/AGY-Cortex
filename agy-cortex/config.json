@@ -1,4 +1,5 @@
 {
   "experimental_parallel_routing": true,
-  "model_routing_enabled": true
+  "model_routing_enabled": true,
+  "planning_mode_enabled": true
 }
