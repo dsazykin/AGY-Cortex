@@ -192,9 +192,8 @@ Persistent configuration and execution states are declared in `config.json`.
 To eliminate filesystem searching latencies during interactive chats, the Orchestrator is instructed to bypass recursive directory and grep scans when reading or writing `config.json`. Instead, it resolves the configuration path dynamically using environment variables:
 - **Windows Systems**: `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json`
 - **macOS/Linux Systems**: `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json`
-- **Workspace Fallback**: `./agy-cortex/config.json` (relative to the active repository root)
 
-By utilizing these precise point-reads/writes, the plugin achieves near-instantaneous state transitions while ensuring 100% portability across different developer platforms and user accounts.
+By utilizing these precise point-reads/writes exclusively on the global plugin configurations, the plugin achieves near-instantaneous state transitions while protecting the local repository from configuration clutter or git modifications.
 
 ---
 

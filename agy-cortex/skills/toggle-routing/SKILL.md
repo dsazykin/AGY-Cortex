@@ -10,11 +10,11 @@ This skill intercepts the `/toggle-routing` command and dynamically updates the 
 ## Critical Instructions:
 When this command is triggered by the user:
 
-1. **Read Configuration Immediately:** Retrieve `config.json` by targeting the dynamic path based on where your home directory is located:
+1. **Read Configuration Immediately:** Retrieve `config.json` by targeting the dynamic global plugin configuration path based on where your home directory is located:
    - **Windows:** `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json` (resolve `%USERPROFILE%` dynamically)
    - **macOS/Linux:** `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json` (resolve `~` or `$HOME` dynamically)
-   - **Local Fallback:** Check `./agy-cortex/config.json` relative to the current workspace root.
-   Directly call the `read_file` tool on the target path. Do NOT perform any broad directory listings, grep searches, or filesystem scans.
+   You MUST only read and modify this global configuration file. Never attempt to read, write, or create a local fallback configuration in the workspace.
+   Directly call the `read_file` tool on this global path. Do NOT perform any broad directory listings, grep searches, or filesystem scans.
 2. **Toggle the State:**
    - Read the current boolean value of `model_routing_enabled` from the loaded JSON.
    - If it is missing or `false`, update it to `true`.
