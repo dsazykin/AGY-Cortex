@@ -27,12 +27,12 @@ The plugin uses a flat `agents/` directory structure containing distinct agent t
 To solve long-term context window bloat and eliminate API token waste, the plugin establishes a two-tiered memory architecture:
 * **Tier 1: Master Focal Registry & ADR Archive**: 
   - `CONTEXT.md` acts as a lightweight focal registry containing the **Active Focal Task**, a high-signal index table of archived ADRs, and active global invariants.
-  - Historic Architectural Decision Records (ADRs) are archived locally under `.antigravitycli/adr/adr-XXX.md` to keep `CONTEXT.md` lean.
+  - Historic Architectural Decision Records (ADRs) are archived locally under `.antigravitycli/adr/agy-cortex/adr-XXX.md` to keep `CONTEXT.md` lean.
 * **Tier 2: Active Session Blackboard (`.session_map.json`)**: 
   - A temporary runtime file generated at the project root and automatically ignored via `.gitignore` to keep git history pristine.
 * **Dynamic L1 Context Filter**: On boot, the L1 Librarian reads `CONTEXT.md`, filters *only* the specific active invariants relevant to the active task, and writes them to the blackboard.
 * **Execution Bypass**: L2 and L3 bypass reading `CONTEXT.md` entirely, reading strictly from `.session_map.json` to achieve zero token waste and ultra-fast boot times.
-* **Automated Curation**: When a strategic task is closed out, L4 Senior and L5 Architect agents automatically archive details into a new ADR markdown file under `.antigravitycli/adr/` and clear the active task in `CONTEXT.md`.
+* **Automated Curation**: When a strategic task is closed out, L4 Senior and L5 Architect agents automatically archive details into a new ADR markdown file under `.antigravitycli/adr/agy-cortex/` and clear the active task in `CONTEXT.md`.
 
 ### 2. The Draft-then-Verify Pipeline
 To optimize token usage during heavy generation:
