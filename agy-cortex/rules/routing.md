@@ -6,15 +6,15 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
 Prior to running the triage loop, you MUST inspect the user's prompt to check if they are running a slash command or requesting orchestration state changes.
 
 1. **If a model routing toggle request or `/toggle-routing` is detected**:
-   - Use your file editing tools to read `agy-cortex/config.json`.
+   - Immediately read the configuration file (resolving `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json` on Windows, or `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json` on macOS/Linux, with a fallback to `./agy-cortex/config.json` in the workspace root) using `read_file`. Do NOT run directory lists, grep, or search scans.
    - Read the current value of `model_routing_enabled`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
-   - Save the file and output the beautifully formatted visual card announcing the new state (from `skills/toggle-routing/SKILL.md`).
+   - Save the file back to the exact path from which it was read using `replace` or `write_file` immediately, and output the beautifully formatted visual card announcing the new state (from `skills/toggle-routing/SKILL.md`).
    - Terminate the turn immediately.
 
 2. **If an experimental parallel routing toggle request or `/toggle-parallel` is detected**:
-   - Use your file editing tools to read `agy-cortex/config.json`.
+   - Immediately read the configuration file (resolving `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json` on Windows, or `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json` on macOS/Linux, with a fallback to `./agy-cortex/config.json` in the workspace root) using `read_file`. Do NOT run directory lists, grep, or search scans.
    - Read the current value of `experimental_parallel_routing`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
-   - Save the file and output the beautifully formatted visual card announcing the new state (from `skills/toggle-parallel/SKILL.md`).
+   - Save the file back to the exact path from which it was read using `replace` or `write_file` immediately, and output the beautifully formatted visual card announcing the new state (from `skills/toggle-parallel/SKILL.md`).
    - Terminate the turn immediately.
 
 3. **If `/cortex <tier> <prompt>` is detected**:
@@ -59,7 +59,7 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
 
 ## The Chain of Command Orchestration Loop:
 
-1. **Read Configuration:** At the absolute beginning of a standard task, the Orchestrator MUST read `agy-cortex/config.json` to verify the state of both `model_routing_enabled` and `experimental_parallel_routing`.
+1. **Read Configuration:** At the absolute beginning of a standard task, the Orchestrator MUST immediately read the configuration file (resolving `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json` on Windows, or `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json` on macOS/Linux, with a fallback to `./agy-cortex/config.json` in the workspace root) using `read_file` to verify the state of both `model_routing_enabled` and `experimental_parallel_routing`. Do NOT run directory listings or search commands to find it.
 
 2. **Routing Enablement Check:** If `model_routing_enabled` is `false` (or missing), the Orchestrator MUST completely bypass this Chain of Command Orchestration Loop and directly process and answer the user's prompt as the primary agent. Otherwise, proceed with routing.
 
