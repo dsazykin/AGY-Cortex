@@ -40,15 +40,19 @@ By placing a `CONTEXT.md` file at the root of any project, you can define global
 ## Installation & Usage
 
 1. **Clone** the repository.
-2. **Install Globally via AGY CLI**:
+2. **Validate the plugin structure**:
    ```bash
-   agy plugin import ./agy-cortex --global
+   agy plugin validate ./agy-cortex
    ```
-3. **Update (if changes are made)**:
+3. **Install Globally via AGY CLI**:
    ```bash
-   agy plugin import ./agy-cortex --global --force
+   agy plugin install ./agy-cortex --global
    ```
-4. **Verify**:
+4. **Update (if changes are made)**:
+   ```bash
+   agy plugin install ./agy-cortex --global --force
+   ```
+5. **Verify**:
    ```bash
    agy plugin list
    ```
