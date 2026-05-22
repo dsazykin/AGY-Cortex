@@ -168,26 +168,40 @@ $$\textbf{History Reduction: } \sim \mathbf{84.5\% \text{ savings}}$$
 
 ---
 
-## 6. Experimental Parallel Routing & Workspace Isolation
+## 6. Configuration Schema & Dynamic Home Directory Resolution
 
-To maximize throughput on complex development prompts consisting of non-overlapping vectors, `agy-cortex` triggers **Path B (Parallel Route)**.
+Persistent configuration and execution states are declared in `config.json`.
 
 ### 6.1 Configuration Schema (`config.json`)
-Persistent parallel routing state is declared in `agy-cortex/config.json`:
 ```json
 {
+  "model_routing_enabled": true,
   "experimental_parallel_routing": false
 }
 ```
-*Users can update this via natural language commands (e.g., "enable parallel routing"), which the Orchestrator intercepts, writes in-place to `config.json`, and returns with a visual toggle confirmation.*
+*Users can update these configuration states using conversational requests or specialized slash commands (e.g. `/toggle-routing`, `/toggle-parallel`), which the Orchestrator intercepts, writes in-place to `config.json`, and returns with styled visual toggle confirmations.*
 
-### 6.2 The Parallel Loop Phase Details
+### 6.2 Environment-Driven Dynamic Path Resolution
+To eliminate filesystem searching latencies during interactive chats, the Orchestrator is instructed to bypass recursive directory and grep scans when reading or writing `config.json`. Instead, it resolves the configuration path dynamically using environment variables:
+- **Windows Systems**: `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json`
+- **macOS/Linux Systems**: `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json`
+- **Workspace Fallback**: `./agy-cortex/config.json` (relative to the active repository root)
+
+By utilizing these precise point-reads/writes, the plugin achieves near-instantaneous state transitions while ensuring 100% portability across different developer platforms and user accounts.
+
+---
+
+## 7. Experimental Parallel Routing & Workspace Isolation
+
+To maximize throughput on complex development prompts consisting of non-overlapping vectors, `agy-cortex` triggers **Path B (Parallel Route)**.
+
+### 7.1 The Parallel Loop Phase Details
 
 #### Phase 1: Planning (Decomposer)
-If triage returns `parallel_route`, the Orchestrator spawns the **Decomposer** (`Gemini 3.1 Pro`) in the background. The Decomposer maps imports, inspects database/frontend dependencies, designs visual interfaces, and writes detailed integration contracts to `.session_map.json` under `parallel_specification`.
+If triage returns `parallel_route` (and parallel routing is enabled in the configuration), the Orchestrator spawns the **Decomposer** (`Gemini 3.1 Pro`) in the background. The Decomposer maps imports, inspects database/frontend dependencies, designs visual interfaces, and writes detailed integration contracts to `.session_map.json` under `parallel_specification`.
 
 #### Phase 2: The User-in-the-Loop Confirmation Gate
-The Orchestrator pauses all execution and presents the Decomposer's proposed interface specifications, targeted files, and worker assignments visually to you. It blocks worker spawning until you click **[Yes, run parallel]**.
+The Orchestrator pauses all execution and presents the Decomposer's proposed interface specifications, targeted files, and worker assignments visually to the user. It blocks worker spawning until the user selects **[Yes, run parallel]**.
 
 #### Phase 3: Concurrent Spawning (`share` workspaces)
 The Orchestrator spawns workers concurrently using the `Workspace: "share"` configuration.
@@ -199,7 +213,7 @@ Once workers terminate, the Orchestrator spawns the **Integrator** (`Gemini 3.5 
 
 ---
 
-## 7. Automated Intent Alignment Review Loop
+## 8. Automated Intent Alignment Review Loop
 
 Before concluding execution after any strategy-tier (**L4 Senior** or **L5 Architect**) file edits, the system executes a native, pre-authenticated verification check:
 
@@ -208,3 +222,54 @@ Before concluding execution after any strategy-tier (**L4 Senior** or **L5 Archi
 3.  **Self-Correction**:
     - If L4 Senior identifies alignment issues, it returns `"status": "escalation"` alongside detailed, constructive feedback. The Orchestrator blocks session completion, displays L4's audit report, and re-delegates the task back to the execution tiers to correct.
     - If L4 Senior confirms alignment, it returns `"status": "success"` and the Orchestrator wraps up the task.
+
+---
+
+## 9. Manual Slash Command Lifecycles & Bypass Workflows
+
+Slash commands complement automated routing by providing direct control channels for targeted workflows:
+
+```
+                  ┌──────────────────────────────────────────┐
+                  │           User Slash Command             │
+                  └─────┬──────────────────────────────┬─────┘
+                        │                              │
+         [ Configuration Toggles ]             [ Direct Subagent Bypasses ]
+         ┌──────────────┴──────────────┐       ┌──────────────┴──────────────┐
+         │ /toggle-routing             │       │ /cortex <tier> <prompt>     │
+         │ /toggle-parallel            │       │ /analyze [path]             │
+         └──────────────┬──────────────┘       │ /review                     │
+                        ▼                      │ /draft <prompt>             │
+         ┌─────────────────────────────┐       └──────────────┬──────────────┘
+         │ Direct Environment Path     │                      │
+         │ Point-Read & Write          │                      ▼
+         └─────────────────────────────┘       ┌─────────────────────────────┐
+                                               │ Executed Bypass Lifecycles  │
+                                               └─────────────────────────────┘
+```
+
+### 9.1 Toggle Commands (`/toggle-routing` & `/toggle-parallel`)
+1. **Intercept**: The Orchestrator intercepts the slash command immediately prior to starting the L0 Triage router.
+2. **Resolve & Read**: It uses dynamic environment-driven resolution to locate the global `config.json` and performs a point-read.
+3. **Write & Announce**: It flips the targeted boolean state (`model_routing_enabled` or `experimental_parallel_routing`), writes the update back to the configuration file, prints a styled state card in the terminal, and terminates the turn instantly.
+
+### 9.2 Direct Subagent Control (`/cortex <tier> <prompt>`)
+1. **Tier Check**: The Orchestrator validates the extracted `<tier>` against the specialist registry.
+2. **Blackboard Safety Net**: If the targeted tier is an execution worker (`junior` or `engineer`) and `.session_map.json` is missing, the Orchestrator spawns L1 Librarian first to discover symbols and compile the blackboard.
+3. **Context Shielding Sandbox**: If targeting a strategy tier (`senior` or `architect`), the Orchestrator injects a strict sandbox directive to strip file-writing permissions, guaranteeing a read-only analysis and design session.
+4. **Execution**: The Orchestrator executes the subagent, prepends the visual identifier to the output, runs verification if files were modified, and cleans up the temporary blackboard.
+
+### 9.3 Codebase Discovery (`/analyze [path]`)
+1. **Triage Bypass**: Automatically routes to the L1 Librarian.
+2. **Indexing**: Librarian catalogs files and symbols, compile active invariants, and writes `.session_map.json` at the root.
+3. **Persistence**: Appends `.session_map.json` to `.gitignore` and keeps the file active after completing, allowing subsequent commands to run with zero-discovery latencies.
+
+### 9.4 Code Quality Auditing (`/review`)
+1. **Diff Extraction**: Orchestrator runs `git diff HEAD` to capture working tree changes.
+2. **Audit Invocation**: Spawns L4 Senior Developer under the strict sandbox shield (read-only mode).
+3. **Report Delivery**: Prepend L4 branding and outputs the comprehensive architectural and style review report.
+
+### 9.5 Rapid Generation (`/draft <prompt>`)
+1. **Draft Generation**: Spawns L2 Junior Developer to draft mock classes, database migrations, or boilerplate.
+2. **Blackboard Fallback**: Junior reads `.session_map.json` if available; otherwise, displays a fallback warning to the user but continues.
+3. **Handoff Verification**: Spawns L3 Core Engineer to compile, lint, and verify the newly generated files automatically.

@@ -87,6 +87,22 @@ For complex multi-layered tasks, `agy-cortex` enables an experimental concurrent
 
 ---
 
+## Operational Slash Commands
+
+To complement fully automated routing, `agy-cortex` exposes high-signal slash commands directly in the Antigravity TUI:
+
+*   **`/toggle-routing`**: Toggle the core multi-agent triage and routing pipeline. When bypassed (`[BYPASSED]`), the main agent handles prompt resolution directly.
+*   **`/toggle-parallel`**: Toggle the experimental multi-branch parallel routing engine (concurrency in isolated git worktrees).
+*   **`/cortex <tier> <prompt>`**: Manually invoke a specific specialist subagent directly, bypassing automatic triage.
+    *   *Tiers*: `librarian` (L1), `junior` (L2), `engineer` (L3), `senior` (L4), `architect` (L5), `decomposer`, `integrator`.
+    *   *Blackboard Safety*: Targeting execution workers (`junior` or `engineer`) automatically triggers L1 Blackboard building if `.session_map.json` is missing.
+    *   *Strategy Shielding*: Targeting strategy tiers (`senior` or `architect`) automatically restricts all write privileges.
+*   **`/analyze [path]`**: Spin up the **L1 Librarian** to index files, compile symbols, and build/persist `.session_map.json` under your designated path.
+*   **`/review`**: Retrieve the workspace `git diff HEAD` and spawn a sandboxed **L4 Senior Developer** to perform a complete code quality audit.
+*   **`/draft <prompt>`**: Trigger the **L2 Junior Developer** directly to generate templates or files, followed by an L3 test verification sweep.
+
+---
+
 ## Operational Transparency
 
 Every execution response is prepended with its corresponding agent's branding header, indicating model and tier details:
