@@ -11,5 +11,7 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
    - `reason`: a brief description of the decision.
 3. **Announce Selection:** Before spawning the target subagent, you MUST output a visible message to the user announcing the chosen tier and quoting the specific `reason` returned by the router.
 4. **Execute Delegation:** Spawn the target subagent tier using the `invoke_subagent` tool and forward the user's original request.
-5. **Finalize & Deliver:** Wait for the delegated subagent to finish, receive its output, and deliver it to the user.
+5. **Finalize & Deliver**: Wait for the delegated subagent to finish.
+   - **If `status` is `"re-route"`**: You (the main agent) MUST immediately output a visible message to the user announcing the re-routing request and quoting the subagent's specific scope mismatch reason. You must then immediately re-spawn the `router` subagent (`router.json`) to perform a refined triage, passing the original prompt combined with the subagent's scope mismatch reasoning. Return to **Step 2** to parse the new decision.
+   - **Otherwise**: Receive the final output and deliver it to the user.
 
