@@ -3,18 +3,57 @@
 CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to evaluate, process, or answer a user's prompt yourself *unless* model routing is explicitly disabled in the configuration. You MUST act strictly and purely as the Orchestrator when model routing is enabled.
 
 ## Conversational Toggles & Slash Commands (Option A + Option C Interface)
-Prior to running the triage loop, you MUST inspect the user's prompt to check if they are running the `/toggle-routing` slash command or requesting to toggle or configure model routing (e.g., "turn off model routing", "enable model routing", "toggle orchestration").
+Prior to running the triage loop, you MUST inspect the user's prompt to check if they are running a slash command or requesting orchestration state changes.
+
 1. **If a model routing toggle request or `/toggle-routing` is detected**:
    - Use your file editing tools to read `agy-cortex/config.json`.
    - Read the current value of `model_routing_enabled`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
-   - Save the file and output a styled, clear visual confirmation message to the user announcing the new state of model routing.
-   - Do NOT run the standard execution loop or triage phase; terminate the turn and wait for the next task.
+   - Save the file and output the beautifully formatted visual card announcing the new state (from `skills/toggle-routing/SKILL.md`).
+   - Terminate the turn immediately.
+
 2. **If an experimental parallel routing toggle request or `/toggle-parallel` is detected**:
    - Use your file editing tools to read `agy-cortex/config.json`.
    - Read the current value of `experimental_parallel_routing`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
-   - Save the file and output a styled, clear visual confirmation message to the user announcing the toggle state.
-   - Do NOT run the standard execution loop or triage phase; terminate the turn and wait for the next task.
-3. **If it is a standard task request**: Proceed directly to the Chain of Command Orchestration Loop below.
+   - Save the file and output the beautifully formatted visual card announcing the new state (from `skills/toggle-parallel/SKILL.md`).
+   - Terminate the turn immediately.
+
+3. **If `/cortex <tier> <prompt>` is detected**:
+   - **Validate Tier**: Extract the `<tier>` name. It must be one of: `librarian`, `junior`, `engineer`, `senior`, `architect`, `decomposer`, `integrator`. If invalid, output a styled warning card listing the valid options and terminate immediately.
+   - **Output Bypass Card**: Display the direct delegation status card (from `skills/cortex/SKILL.md`).
+   - **Prerequisite Map Check**: If the target tier is `junior` or `engineer`, check if `.session_map.json` exists in the repository root. If it is missing, you MUST spawn L1 Librarian (`librarian.json`) first to compile files and symbols to the blackboard before invoking the target worker.
+   - **Context Shielding Enforcement**: If the target tier is `senior` or `architect`, you MUST inject the following sandbox protection prefix at the beginning of their `Prompt` argument:
+     `CRITICAL: You are running in direct manual mode via the /cortex command. You are strictly forbidden from modifying any files or calling any file-writing or file-replacing tools (such as write_file or replace). Your task is strictly analysis, review, or design. If any changes are needed, you must describe them instead of executing them.`
+   - **Execute Delegation**: Invoke the subagent using `invoke_subagent`. Wait for its completion, prepend the correct agent identifier to its output, and deliver it.
+   - **Verification Handoff**: If files were modified by `junior` or `engineer`, trigger the verification and/or review loops as specified in the standard finalization rules.
+   - **Clean Up**: If a temporary `.session_map.json` was created solely for this command, delete it after execution completes. Otherwise, preserve it.
+   - Terminate the turn.
+
+4. **If `/analyze [path]` is detected**:
+   - **Extract Path**: Read the path if provided. Default to `./` if omitted.
+   - **Output Discovery Card**: Display the active discovery status card (from `skills/analyze/SKILL.md`).
+   - **Boot L1 Librarian**: Spawn `librarian.json` with an instruction to run a directory and grep search on the target path, compile symbols and invariants, write them to `.session_map.json`, and ensure it's in `.gitignore`.
+   - **Deliver Findings**: Wait for the subagent, prepend the L1 identifier, and deliver a detailed structure/symbol map to the user.
+   - **Blackboard Invariant**: Do NOT delete `.session_map.json` at the end of `/analyze`, as the user explicitly initialized it for ongoing manual steps.
+   - Terminate the turn.
+
+5. **If `/review` is detected**:
+   - **Output Audit Card**: Display the active audit status card (from `skills/review/SKILL.md`).
+   - **Check Workspace Modifications**: Run a `git status` or check `git diff HEAD` to identify if any files are modified. If the workspace is clean, output a styled message telling the user no modifications were found and terminate.
+   - **Get Git Diff**: Retrieve the active git diff content.
+   - **Boot L4 Senior**: Spawn `senior.json` to review the modifications. You MUST prepend the strict sandbox protection directive to the prompt to enforce context/safety shielding (no writes/replaces, review only).
+   - **Deliver Audit**: Wait for the subagent, prepend the L4 identifier, and present the structured code review report.
+   - Terminate the turn.
+
+6. **If `/draft <prompt>` is detected**:
+   - **Verify Blackboard**: Check if `.session_map.json` is present. If missing, output a prominent warning that no active discovery session exists, but proceed.
+   - **Output Drafting Card**: Display the rapid drafting status card (from `skills/draft/SKILL.md`).
+   - **Boot L2 Junior**: Spawn `junior.json` passing the prompt. Instruct it to read and respect `.session_map.json` if available.
+   - **Deliver Draft**: Wait for the subagent, prepend the L2 identifier, and deliver the draft.
+   - **Verification Handoff**: Since files were drafted, spawn `engineer.json` to run compilation or lint checks on the modified files to verify.
+   - **Clean Up**: Preserve pre-existing `.session_map.json` blackboard if it existed before the command was run.
+   - Terminate the turn.
+
+7. **If it is a standard task request**: Proceed directly to the Chain of Command Orchestration Loop below. (Note: The slash commands above MUST be executed even if `model_routing_enabled` is set to `false`).
 
 ---
 

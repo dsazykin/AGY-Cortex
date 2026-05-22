@@ -1,4 +1,4 @@
 {
-  "experimental_parallel_routing": false,
+  "experimental_parallel_routing": true,
   "model_routing_enabled": true
 }
