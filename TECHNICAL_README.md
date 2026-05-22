@@ -51,6 +51,7 @@ Each agent profile resides under `agy-cortex/agents/` as a structured JSON file 
 | **L3** | **Engineer** | `engineer.json` | `Gemini 3.5 Flash` | `read_file`, `replace`, `run_test_suite`, `run_linter`, `git_*` | Full feature implementations and complete testing sweeps. |
 | **L4** | **Senior** | `senior.json` | `Gemini 3.1 Pro` | `invoke_agent`, `read_file`, `git_*` | Complex refactoring, strategic debugging, and ADR archiving. |
 | **L5** | **Architect** | `architect.json` | `Gemini 3.5 Pro` | `invoke_agent`, `read_file`, `git_*` | System design, core invariant management, and strategic reviews. |
+| **Utility** | **Planner** | `planner.json` | `Gemini 3.1 Pro` | `read_file`, `write_file`, `replace`, `list_directory`, `grep_search`, `submit_result` | Evaluates prompt planning merit, writes `.cortex_plan.md` plan, halts for `/approve` |
 | **Utility** | **Decomposer** | `decomposer.json` | `Gemini 3.1 Pro` | `read_file`, `write_file`, `grep_search` | Dependency graphing, task decomposition, and API contracts. |
 | **Utility** | **Integrator** | `integrator.json` | `Gemini 3.5 Flash` | `git_status`, `git_diff`, `run_command` | Branch merging, manual conflict reconciliation, and test sweeps. |
 
@@ -96,6 +97,10 @@ The cornerstone of the system's token efficiency is the **Active Session Blackbo
     "Orchestrator Prepending: Prefix outputs with [TIER] tags.",
     "Blackboard-First Boot: Subagents must read blackboard before scanning directories."
   ],
+  "custom_user_instructions": [
+    "Prefer HSL tailored colors for maximum accessibility.",
+    "Keep responses concise and avoid overly polite phrasing."
+  ],
   "parallel_specification": {
     "contracts": [
       {
@@ -124,7 +129,8 @@ The cornerstone of the system's token efficiency is the **Active Session Blackbo
 
 ### 4.2 The Blackboard Lifecycle
 1.  **Boot Filtering**: When a task begins, the **L1 Librarian** boots up, reads the active `CONTEXT.md` focal registry, dynamically filters out *only* the specific active invariants relevant to the current task, and writes the structured `.session_map.json` blackboard.
-2.  **VCS Ignore Injection**: Upon creation, the Librarian automatically appends `.session_map.json` to the project's `.gitignore` file, ensuring temporary blackboards are never committed.
+2.  **Developer Instruction Compilation**: L1 Librarian dynamically checks for local `DEVELOPER.md`/`CORTEX.md` in the workspace root, or global `developer.md`/`cortex.md` in the home directory. It extracts custom coding styling, conventions, and phrasings, ignores all orchestration meta-directives, and compiles them to `"custom_user_instructions"` on the blackboard.
+3.  **VCS Ignore Injection**: Upon creation, the Librarian automatically appends `.session_map.json` to the project's `.gitignore` file, ensuring temporary blackboards are never committed.
 3.  **Boot Read Requirement**: Subagents **L2 (Junior)** and **L3 (Engineer)** are hard-coded to read `.session_map.json` as their absolute first action upon waking. They completely bypass reading `CONTEXT.md` or doing expensive codebase-wide directory scans.
 4.  **Write Back & Clean Up**: Before terminating, workers update `.session_map.json` with their modified file targets and execution logs. Once the Orchestrator completes the overall task, it deletes `.session_map.json` to leave the workspace pristine.
 
@@ -176,7 +182,8 @@ Persistent configuration and execution states are declared in `config.json`.
 ```json
 {
   "model_routing_enabled": true,
-  "experimental_parallel_routing": false
+  "experimental_parallel_routing": false,
+  "planning_mode_enabled": true
 }
 ```
 *Users can update these configuration states using conversational requests or specialized slash commands (e.g. `/toggle-routing`, `/toggle-parallel`), which the Orchestrator intercepts, writes in-place to `config.json`, and returns with styled visual toggle confirmations.*
@@ -248,10 +255,10 @@ Slash commands complement automated routing by providing direct control channels
                                                └─────────────────────────────┘
 ```
 
-### 9.1 Toggle Commands (`/toggle-routing` & `/toggle-parallel`)
-1. **Intercept**: The Orchestrator intercepts the slash command immediately prior to starting the L0 Triage router.
-2. **Resolve & Read**: It uses dynamic environment-driven resolution to locate the global `config.json` and performs a point-read.
-3. **Write & Announce**: It flips the targeted boolean state (`model_routing_enabled` or `experimental_parallel_routing`), writes the update back to the configuration file, prints a styled state card in the terminal, and terminates the turn instantly.
+### 9.1 Toggle Commands (`/toggle-routing`, `/toggle-parallel`, & `/toggle-planning`)
+1. Intercept: The Orchestrator intercepts the slash command immediately prior to starting the L0 Triage router.
+2. Resolve & Read: It uses dynamic environment-driven resolution to locate the global `config.json` and performs a point-read.
+3. Write & Announce: It flips the targeted boolean state (`model_routing_enabled`, `experimental_parallel_routing`, or `planning_mode_enabled`), writes the update back to the configuration file, prints a styled state card in the terminal, and terminates the turn instantly.
 
 ### 9.2 Direct Subagent Control (`/cortex <tier> <prompt>`)
 1. **Tier Check**: The Orchestrator validates the extracted `<tier>` against the specialist registry.

@@ -85,6 +85,13 @@ For complex multi-layered tasks, `agy-cortex` enables an experimental concurrent
 3.  **Concurrent Execution**: Spawns workers concurrently in isolated git worktrees (`share` workspace mode).
 4.  **Merging & Verification**: Spawns **Integrator** (`Gemini 3.5 Flash`) to checkout, resolve merge conflicts, and execute test sweeps.
 
+### 5. Dynamic Plan Mode
+When Plan Mode is enabled, the system evaluates the prompt against the codebase to determine if a plan is warranted (`warrants_plan`). If true, a dedicated **Planner** (`Gemini 3.1 Pro`) drafts a high-fidelity implementation plan (`.cortex_plan.md`) and halts for your explicit approval (`/approve`) before execution.
+
+### 6. `DEVELOPER.md` Custom Rule Inheritance
+Specialist workers (`junior.json` and `engineer.json`) automatically inherit your custom coding conventions, formatting guidelines, CSS/styling standardizations, and interaction preferences. 
+- **Separation of Concerns**: Simply drop a `DEVELOPER.md` or `CORTEX.md` in your project root (or a global `developer.md`/`cortex.md` in your home folder). The **L1 Librarian** dynamically reads and populates these rules to the blackboard, completely isolating styling from orchestrator routing commands and eliminating any risk of logic loops.
+
 ---
 
 ## Operational Slash Commands
@@ -93,6 +100,7 @@ To complement fully automated routing, `agy-cortex` exposes high-signal slash co
 
 *   **`/toggle-routing`**: Toggle the core multi-agent triage and routing pipeline. When bypassed (`[BYPASSED]`), the main agent handles prompt resolution directly.
 *   **`/toggle-parallel`**: Toggle the experimental multi-branch parallel routing engine (concurrency in isolated git worktrees).
+*   **`/toggle-planning`**: Toggle the Dynamic Planning Gate and approval loops. When enabled, complex tasks trigger a structured plan and halt for your `/approve` command before modifying files.
 *   **`/cortex <tier> <prompt>`**: Manually invoke a specific specialist subagent directly, bypassing automatic triage.
     *   *Tiers*: `librarian` (L1), `junior` (L2), `engineer` (L3), `senior` (L4), `architect` (L5), `decomposer`, `integrator`.
     *   *Blackboard Safety*: Targeting execution workers (`junior` or `engineer`) automatically triggers L1 Blackboard building if `.session_map.json` is missing.
@@ -136,8 +144,25 @@ Every execution response is prepended with its corresponding agent's branding he
     ```bash
     agy plugin list
     ```
+5.  **Configure Global Orchestration Override**:
+    To guarantee the main agent always boots into Orchestrator mode and doesn't sidestep the plugin, you **MUST** append the following directive to your **global `gemini.md` or `agents.md`** file (located in your home directory, e.g. `~/.gemini/antigravity-cli/gemini.md`):
+    ```markdown
+    [!IMPORTANT]
+    **Orchestration Priority**
+    - If the `agy-cortex` plugin is active, suspend direct execution and defer strictly to the Orchestrator routing
+    rules defined in `rules/routing.md` (unless `/toggle-routing` has set `model_routing_enabled` to `false`).
+    ```
+6.  **Adopt the `DEVELOPER.md` Standard**:
+    To ensure your custom project-specific developer rules are inherited by execution workers without logic conflicts:
+    - **Do NOT** use a local project-level `gemini.md` or `agents.md` file in your repositories.
+    - Instead, **move all your custom developer instructions** from it into a new local **`DEVELOPER.md`** file at the root of your project. The `agy-cortex` L1 Librarian will automatically discover, filter, and compile these instructions onto the active blackboard for your workers!
 
 Submit your development prompts normally, and the tiered orchestration engine will automatically coordinate your specialist team!
+
+### Customizing Worker Styles (`DEVELOPER.md`)
+To enforce specific coding standards, HSL color palettes, framework constraints, or conversational tones without diluting the Orchestrator, do **not** edit your standard system files or `gemini.md` files. Instead:
+- Create a **`DEVELOPER.md`** file at the root of your project (or a global `developer.md` under `~/.gemini/antigravity-cli/`).
+- Write your custom rules there. The L1 Librarian automatically parses them and passes them to the workers under strict loop-protection immunity.
 
 ## Documentation Index
 
