@@ -16,6 +16,8 @@ The plugin uses a flat `agents/` directory structure containing distinct agent t
 | **L3** | **Engineer** | `Gemini 3.5 Flash` | Full feature implementations, testing sweeps, and integration verification. |
 | **L4** | **Senior** | `Gemini 3.1 Pro` | Review, strategic debugging, and automatic ADR curation. |
 | **L5** | **Architect** | `Gemini 3.5 Pro` | High-level system design, strategic pivots, and core invariants owner. |
+| **Utility** | **Decomposer** | `Gemini 3.1 Pro` | Dependency mapping, task decomposition, and shared API contract planning. |
+| **Utility** | **Integrator** | `Gemini 3.5 Flash` | Parallel workspace merging, git conflict reconciliation, and unified verification. |
 
 ---
 
@@ -48,6 +50,14 @@ To safeguard system design and quality, the Orchestrator implements a native, su
 * **Trigger Condition**: Automatically triggers after any Strategy Tier (**L4 Senior** or **L5 Architect**) completes a task and makes modifications.
 * **Alignment Analysis**: The Orchestrator automatically captures the working tree modifications via `git diff HEAD` and spawns the **L4 Senior** subagent (`senior.json`) using `invoke_subagent`.
 * **Self-Correction**: If L4 identifies any deviations or mismatches, it returns detailed, constructive feedback. The Orchestrator blocks session conclusion, surfaces the feedback, and re-delegates the task back to the execution/strategy agents to self-correct.
+
+### 6. Experimental Parallel Routing & Concurrent Execution (ADR-005)
+To maximize throughput for complex tasks containing independent, non-overlapping work vectors (e.g. database schema setup + React visual styling), the plugin introduces a high-performance parallel routing strategy:
+*   **Double-Toggle Mechanism (Option A + C)**: Persistent configuration is stored in `config.json` and can be toggled instantly via natural language chat commands (the Orchestrator writes directly to the config file).
+*   **The Specialized Decomposer Agent**: Spawns first to perform dependency mapping, set absolute file boundaries for workers, and write a strict, shared API interface contract inside `.session_map.json`.
+*   **User-in-the-Loop Confirmation Gate**: The Orchestrator halts and displays the Decomposer's proposed plans, contracts, and boundaries, blocking execution until the user clicks **[Yes, run parallel]**.
+*   **Concurrent Isolated Workspaces**: Execution workers are launched concurrently in isolated `share` workspaces backed by git worktrees to completely avoid mid-write file overwrites.
+*   **The Specialized Integrator Agent**: Automatically merges the workspaces back, parses and resolves git merge conflict markers manually, and runs test/lint scripts to verify full system compilation.
 
 ---
 
