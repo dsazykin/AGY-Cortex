@@ -20,6 +20,10 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
      - L4 (Senior): `>>> [L4 | SENIOR | Gemini 3.1 Pro]`
      - L5 (Architect): `>>> [L5 | ARCHITECT | Gemini 3.5 Pro]`
    - **If `status` is `"re-route"`**: You (the main agent) MUST immediately output a visible message to the user announcing the re-routing request and quoting the subagent's specific scope mismatch reason. You must then immediately re-spawn the `router` subagent (`router.json`) to perform a refined triage, passing the original prompt combined with the subagent's scope mismatch reasoning. Return to **Step 2** to parse the new decision.
+   - **Draft-then-Verify Handoff**: If the executed subagent was **L2 (Junior)**, `status` is `"success"`, and files were modified:
+     - You MUST automatically trigger the **Draft-then-Verify Pipeline** by immediately spawning **L3 (Core Engineer)** via `invoke_subagent`.
+     - Forward L2's output and the list of modified files as context, instructing L3 to run the full test and verification suites, fix any integration bugs, and verify complete system compatibility.
+     - Wait for L3 to complete execution and deliver L3's verified final report.
    - **Otherwise**: Prepend the correct agent identifier corresponding to the executed subagent and deliver the final response to the user.
 
 
