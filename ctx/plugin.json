@@ -1,5 +1,5 @@
 {
-  "name": "agy-cortex",
+  "name": "ctx",
   "description": "A tiered multi-agent orchestration framework for Antigravity CLI, featuring specialized decomposer, integrator, and experimental parallel execution.",
   "version": "1.1.0"
 }

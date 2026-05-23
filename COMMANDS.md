@@ -1,4 +1,4 @@
-# 🧬 AGY Cortex Slash Commands Reference
+# AGY Cortex Slash Commands Reference
 
 Welcome to the command reference manual for **AGY Cortex**, the tiered multi-agent orchestration plugin for the **Antigravity CLI**. 
 
@@ -6,7 +6,7 @@ AGY Cortex provides high-signal slash commands directly in the Antigravity TUI i
 
 ---
 
-## 🚀 Command Index
+## Command Index
 
 Here is a summary of all available slash commands in the AGY Cortex ecosystem:
 
@@ -26,7 +26,7 @@ Here is a summary of all available slash commands in the AGY Cortex ecosystem:
 
 ---
 
-## 🛠️ Detailed Command Reference
+## Detailed Command Reference
 
 ### `/toggle-routing`
 Toggles the **Hub-and-Spoke Tiered Intelligence Orchestration** on or off.
@@ -141,13 +141,13 @@ Purges the active shared memory and cached plan files from your workspace direct
 
 ---
 
-## 💡 Typical Workflows
+## Typical Workflows
 
-### 💻 Rapid Scaffold and Verify Loop
+### Rapid Scaffold and Verify Loop
 1. Draft the DB migrations and API models: `/draft generate mock user schema with fields id, email, role`
 2. Instantly verify syntax and compilation: `/verify`
 
-### 🔍 Clean Re-Scanning
+### Clean Re-Scanning
 1. Clean previous execution logs and session memory residue: `/clean`
 2. Perform a fresh structural code scan: `/analyze`
 3. Talk to the main coordinator about the scanned structure: `/question explain the dependencies mapped in our symbol registry`

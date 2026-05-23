@@ -72,13 +72,13 @@ Each subagent has a dedicated profile and is restricted to a narrow, optimized s
 *   **L5 Lead Architect** (`Gemini 3.5 Pro`): High-level system design, strategic pivots, and invariants owner.
 
 ### 2. Two-Tiered Shared Memory
-*   **Tier 1 (Master Focal Registry & ADRs)**: Active tasks are registered in a lean `CONTEXT.md`. Completed tasks are automatically converted into independent Architectural Decision Records (ADRs) under `.antigravitycli/adr/agy-cortex/` to prevent long-term context growth.
+*   **Tier 1 (Master Focal Registry & ADRs)**: Active tasks are registered in a lean `CONTEXT.md`. Completed tasks are automatically converted into independent Architectural Decision Records (ADRs) under `.antigravitycli/adr/` to prevent long-term context growth.
 *   **Tier 2 (Active Session Blackboard)**: A temporary runtime `.session_map.json` blackboard is generated on the fly. Subagents boot up and read strictly from this blackboard, bypassing expensive codebase scans.
 
 ### 3. The Draft-then-Verify Pipeline
 L2 (Junior Dev) performs high-volume drafting (mock systems, DB migrations, scaffolds) and runs local compiler checks. Once successfully drafted, the Orchestrator triggers L3 (Core Engineer) to run deep test suites and integration verifications—guaranteeing both speed and code correctness.
 
-### 4. Isolated Parallel Execution (ADR-005)
+### 4. Isolated Parallel Execution
 For complex multi-layered tasks, `agy-cortex` enables an experimental concurrent workflow:
 1.  **Planning**: Spawns **Decomposer** (`Gemini 3.1 Pro`) to graph dependencies and write API contracts.
 2.  **User-in-the-Loop Gate**: Halts execution, presents the proposed plan, and awaits your explicit approval.
@@ -96,22 +96,10 @@ Specialist workers (`junior.json` and `engineer.json`) automatically inherit you
 
 ## Operational Slash Commands
 
-To complement fully automated routing, `agy-cortex` exposes high-signal slash commands directly in the Antigravity TUI:
+To complement automated routing, the plugin exposes high-signal slash commands directly in the Antigravity TUI (natively under the `/ctx:` namespace, or typed directly in chat as `/toggle-routing`, `/status`, `/verify`, `/clean`, etc.).
 
-*   **`/toggle-routing`**: Toggle the core multi-agent triage and routing pipeline. When bypassed (`[BYPASSED]`), the main agent handles prompt resolution directly.
-*   **`/toggle-parallel`**: Toggle the experimental multi-branch parallel routing engine (concurrency in isolated git worktrees).
-*   **`/toggle-planning`**: Toggle the Dynamic Planning Gate and approval loops. When enabled, complex tasks trigger a structured plan and halt for your `/approve` command before modifying files.
-*   **`/cortex <tier> <prompt>`**: Manually invoke a specific specialist subagent directly, bypassing automatic triage.
-    *   *Tiers*: `librarian` (L1), `junior` (L2), `engineer` (L3), `senior` (L4), `architect` (L5), `decomposer`, `integrator`.
-    *   *Blackboard Safety*: Targeting execution workers (`junior` or `engineer`) automatically triggers L1 Blackboard building if `.session_map.json` is missing.
-    *   *Strategy Shielding*: Targeting strategy tiers (`senior` or `architect`) automatically restricts all write privileges.
-*   **`/analyze [path]`**: Spin up the **L1 Librarian** to index files, compile symbols, and build/persist `.session_map.json` under your designated path.
-*   **`/review`**: Retrieve the workspace `git diff HEAD` and spawn a sandboxed **L4 Senior Developer** to perform a complete code quality audit.
-*   **`/status`**: Print a real-time status card showing your pipeline configurations and blackboard details.
-*   **`/question <prompt>`**: Pose a direct inquiry to the main Coordinator agent, bypassing all multi-agent routing.
-*   **`/verify`**: Spawn the **L3.5 Tester** in the background to execute code compilation, linting, and unit test suites.
-*   **`/visualize`**: Spawn the **L5 Architect** or **L1 Librarian** to scan dependency boundaries and render a modular dependency diagram.
-*   **`/clean`**: Purge active shared memory registries (`.session_map.json`) and cache plans (`.cortex_plan.md`) to reset the pipeline.
+> [!IMPORTANT]
+> For the complete list of commands, detailed syntax, default configurations, typical developer workflows, and premium UI layouts, please refer to the **[Commands Reference Manual](./COMMANDS.md)**.
 
 ---
 
@@ -143,18 +131,18 @@ You can install `agy-cortex` using either the automatic CLI command method or th
     ```
 2.  **Validate Plugin Structure**:
     ```bash
-    agy plugin validate ./agy-cortex
+    agy plugin validate ./ctx
     ```
 3.  **Install Globally via AGY CLI**:
     ```bash
-    agy plugin install ./agy-cortex --global
+    agy plugin install ./ctx --global
     ```
 
 ---
 
 #### Option B: Manual Installation (Fallback)
 
-If the `agy plugin` commands fail, you can manually install the plugin by copying the inner `agy-cortex` package directory (the one containing `plugin.json`) into the global plugins directory of your Antigravity CLI installation.
+If the `agy plugin` commands fail, you can manually install the plugin by copying the inner `ctx` package directory (the one containing `plugin.json`) into the global plugins directory of your Antigravity CLI installation.
 
 ##### **Windows (PowerShell)**:
 1.  Ensure the target plugins directory exists:
@@ -163,7 +151,7 @@ If the `agy plugin` commands fail, you can manually install the plugin by copyin
     ```
 2.  Copy the `agy-cortex` plugin folder from the cloned repository:
     ```powershell
-    Copy-Item -Recurse -Path ".\agy-cortex\agy-cortex" -Destination "$HOME\.gemini\config\plugins\"
+    Copy-Item -Recurse -Path ".\agy-cortex\ctx" -Destination "$HOME\.gemini\config\plugins\"
     ```
 
 ##### **macOS / Linux (Bash/Zsh)**:
@@ -173,7 +161,7 @@ If the `agy plugin` commands fail, you can manually install the plugin by copyin
     ```
 2.  Copy the `agy-cortex` plugin folder from the cloned repository:
     ```bash
-    cp -R ./agy-cortex/agy-cortex ~/.gemini/config/plugins/
+    cp -R ./agy-cortex/ctx ~/.gemini/config/plugins/
     ```
 
 ##### **Validation**:
@@ -196,8 +184,9 @@ Once installed (via either method), complete the following steps to activate and
     ```markdown
     [!IMPORTANT]
     **Orchestration Priority**
-    - If the `agy-cortex` plugin is active, suspend direct execution and defer strictly to the Orchestrator routing
+    - If the `ctx` plugin is active, suspend direct execution and defer strictly to the Orchestrator routing
       rules defined in `rules/routing.md` (unless `/toggle-routing` has set `model_routing_enabled` to `false`).
+
     ```
 3.  **Adopt the `DEVELOPER.md` Standard**:
     To ensure your custom project-specific developer rules are inherited by execution workers without logic conflicts:
@@ -216,4 +205,4 @@ To enforce specific coding standards, HSL color palettes, framework constraints,
 To discover more about the inner workings, refer to the resources below:
 
 *   **[Technical Deep-Dive](./TECHNICAL_README.md)**: Deep dive into agent profiles, system prompts, blackboard specifications, parallel branching git mechanics, and quantitative token-savings analysis.
-*   **[Commands Reference](./COMMANDS.md)**: Comprehensive guide to operational slash commands, aliases, typical developer workflows, and premium status dashboards.
+*   **[Commands Reference](./COMMANDS.md)**: Comprehensive guide to operational slash commands, aliases, typical developer workflows, and premium status dashboards.
