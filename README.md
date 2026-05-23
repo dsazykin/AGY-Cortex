@@ -107,9 +107,14 @@ To complement fully automated routing, `agy-cortex` exposes high-signal slash co
     *   *Strategy Shielding*: Targeting strategy tiers (`senior` or `architect`) automatically restricts all write privileges.
 *   **`/analyze [path]`**: Spin up the **L1 Librarian** to index files, compile symbols, and build/persist `.session_map.json` under your designated path.
 *   **`/review`**: Retrieve the workspace `git diff HEAD` and spawn a sandboxed **L4 Senior Developer** to perform a complete code quality audit.
-*   **`/draft <prompt>`**: Trigger the **L2 Junior Developer** directly to generate templates or files, followed by an L3 test verification sweep.
+*   **`/status`**: Print a real-time status card showing your pipeline configurations and blackboard details.
+*   **`/question <prompt>`**: Pose a direct inquiry to the main Coordinator agent, bypassing all multi-agent routing.
+*   **`/verify`**: Spawn the **L3.5 Tester** in the background to execute code compilation, linting, and unit test suites.
+*   **`/visualize`**: Spawn the **L5 Architect** or **L1 Librarian** to scan dependency boundaries and render a modular dependency diagram.
+*   **`/clean`**: Purge active shared memory registries (`.session_map.json`) and cache plans (`.cortex_plan.md`) to reset the pipeline.
 
 ---
+
 
 ## Operational Transparency
 
@@ -211,3 +216,4 @@ To enforce specific coding standards, HSL color palettes, framework constraints,
 To discover more about the inner workings, refer to the resources below:
 
 *   **[Technical Deep-Dive](./TECHNICAL_README.md)**: Deep dive into agent profiles, system prompts, blackboard specifications, parallel branching git mechanics, and quantitative token-savings analysis.
+*   **[Commands Reference](./COMMANDS.md)**: Comprehensive guide to operational slash commands, aliases, typical developer workflows, and premium status dashboards.
