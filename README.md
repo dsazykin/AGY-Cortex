@@ -128,6 +128,10 @@ Every execution response is prepended with its corresponding agent's branding he
 
 ### Installation Steps
 
+You can install `agy-cortex` using either the automatic CLI command method or the manual fallback method (at the moment the CLI install them to a path not accessible to the agents which breaks the plugin).
+
+#### Option A: CLI-Based Installation (Automatic)
+
 1.  **Clone the Repository**:
     ```bash
     git clone https://github.com/dsazykin/AGY-Cortex.git agy-cortex
@@ -140,19 +144,57 @@ Every execution response is prepended with its corresponding agent's branding he
     ```bash
     agy plugin install ./agy-cortex --global
     ```
-4.  **Verify Setup**:
+
+---
+
+#### Option B: Manual Installation (Fallback)
+
+If the `agy plugin` commands fail, you can manually install the plugin by copying the inner `agy-cortex` package directory (the one containing `plugin.json`) into the global plugins directory of your Antigravity CLI installation.
+
+##### **Windows (PowerShell)**:
+1.  Ensure the target plugins directory exists:
+    ```powershell
+    New-Item -ItemType Directory -Force -Path "$HOME\.gemini\config\plugins"
+    ```
+2.  Copy the `agy-cortex` plugin folder from the cloned repository:
+    ```powershell
+    Copy-Item -Recurse -Path ".\agy-cortex\agy-cortex" -Destination "$HOME\.gemini\config\plugins\"
+    ```
+
+##### **macOS / Linux (Bash/Zsh)**:
+1.  Ensure the target plugins directory exists:
+    ```bash
+    mkdir -p ~/.gemini/config/plugins
+    ```
+2.  Copy the `agy-cortex` plugin folder from the cloned repository:
+    ```bash
+    cp -R ./agy-cortex/agy-cortex ~/.gemini/config/plugins/
+    ```
+
+##### **Validation**:
+After copying, verify that the `plugin.json` file is located exactly at:
+*   **Windows**: `%USERPROFILE%\.gemini\config\plugins\agy-cortex\plugin.json`
+*   **macOS/Linux**: `~/.gemini/config/plugins/agy-cortex/plugin.json`
+
+---
+
+### Post-Installation Setup
+
+Once installed (via either method), complete the following steps to activate and configure the orchestrator:
+
+1.  **Verify Setup**:
     ```bash
     agy plugin list
     ```
-5.  **Configure Global Orchestration Override**:
-    To guarantee the main agent always boots into Orchestrator mode and doesn't sidestep the plugin, you **MUST** append the following directive to your **global `gemini.md` or `agents.md`** file (located in your home directory, e.g. `~/.gemini/antigravity-cli/gemini.md`):
+2.  **Configure Global Orchestration Override**:
+    To guarantee the main agent always boots into Orchestrator mode and doesn't sidestep the plugin, you **MUST** append the following directive to your **global `gemini.md` or `agents.md`** file (located in your home directory, e.g. `~/.gemini/antigravity-cli/gemini.md` or `%USERPROFILE%\.gemini\antigravity-cli\gemini.md`):
     ```markdown
     [!IMPORTANT]
     **Orchestration Priority**
     - If the `agy-cortex` plugin is active, suspend direct execution and defer strictly to the Orchestrator routing
-    rules defined in `rules/routing.md` (unless `/toggle-routing` has set `model_routing_enabled` to `false`).
+      rules defined in `rules/routing.md` (unless `/toggle-routing` has set `model_routing_enabled` to `false`).
     ```
-6.  **Adopt the `DEVELOPER.md` Standard**:
+3.  **Adopt the `DEVELOPER.md` Standard**:
     To ensure your custom project-specific developer rules are inherited by execution workers without logic conflicts:
     - **Do NOT** use a local project-level `gemini.md` or `agents.md` file in your repositories.
     - Instead, **move all your custom developer instructions** from it into a new local **`DEVELOPER.md`** file at the root of your project. The `agy-cortex` L1 Librarian will automatically discover, filter, and compile these instructions onto the active blackboard for your workers!
