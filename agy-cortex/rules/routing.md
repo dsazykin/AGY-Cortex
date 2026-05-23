@@ -59,7 +59,13 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
    - **Clean Up**: Preserve pre-existing `.session_map.json` blackboard if it existed before the command was run.
    - Terminate the turn.
 
-8. **If it is a standard task request**: Proceed directly to the Chain of Command Orchestration Loop below. (Note: The slash commands above MUST be executed even if `model_routing_enabled` is set to `false`).
+8. **If `/question <prompt>` (or `/q <prompt>`, `/ask <prompt>`) is detected**:
+   - **Output Bypass Card**: Display the direct coordinator status card (from `skills/question/SKILL.md`).
+   - **Direct Evaluation**: Process and answer the prompt directly as the primary Coordinator agent, without invoking any subagents, planning gates, or routing checks.
+   - Terminate the turn.
+
+9. **If it is a standard task request**: Proceed directly to the Chain of Command Orchestration Loop below. (Note: The slash commands above MUST be executed even if `model_routing_enabled` is set to `false`).
+
 
 ---
 
