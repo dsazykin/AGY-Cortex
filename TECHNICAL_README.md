@@ -41,7 +41,7 @@ Standard developer agents suffer from **Context Fatigue**. Appending recursive f
 
 ## 2. Core Agent Specifications (Tiers L0 - L5)
 
-Each agent profile resides under `agy-cortex/agents/` as a structured JSON file detailing its dedicated model, system prompts, and tool permissions.
+Each agent profile resides under `ctx/agents/` as a structured JSON file detailing its dedicated model, system prompts, and tool permissions.
 
 | Tier | Agent | File | Model | Primary Tools | Primary Responsibility |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -81,7 +81,7 @@ The cornerstone of the system's token efficiency is the **Active Session Blackbo
 {
   "files_targeted": [
     { 
-      "path": "agy-cortex/agents/router.json", 
+      "path": "ctx/agents/router.json", 
       "lines": "1-30", 
       "purpose": "Modify dispatch action schemas" 
     }
@@ -90,7 +90,7 @@ The cornerstone of the system's token efficiency is the **Active Session Blackbo
     { 
       "name": "dispatchAction", 
       "type": "variable", 
-      "file": "agy-cortex/agents/router.json" 
+      "file": "ctx/agents/router.json" 
     }
   ],
   "invariants_active": [
@@ -190,8 +190,8 @@ Persistent configuration and execution states are declared in `config.json`.
 
 ### 6.2 Environment-Driven Dynamic Path Resolution
 To eliminate filesystem searching latencies during interactive chats, the Orchestrator is instructed to bypass recursive directory and grep scans when reading or writing `config.json`. Instead, it resolves the configuration path dynamically using environment variables:
-- **Windows Systems**: `%USERPROFILE%\.gemini\antigravity-cli\plugins\agy-cortex\config.json`
-- **macOS/Linux Systems**: `~/.gemini/antigravity-cli/plugins/agy-cortex/config.json`
+- **Windows Systems**: `%USERPROFILE%\.gemini\config\plugins\ctx\config.json`
+- **macOS/Linux Systems**: `~/.gemini/config/plugins/ctx/config.json`
 
 By utilizing these precise point-reads/writes exclusively on the global plugin configurations, the plugin achieves near-instantaneous state transitions while protecting the local repository from configuration clutter or git modifications.
 

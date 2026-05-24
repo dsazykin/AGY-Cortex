@@ -11,7 +11,7 @@ This skill intercepts the `/analyze [path]` command and triggers L1 Librarian to
 When this command is triggered by the user:
 
 1. **Parse Target Path**:
-   - Extract the target path if provided (e.g. `/analyze agy-cortex` -> path: `agy-cortex`).
+   - Extract the target path if provided (e.g. `/analyze ctx` -> path: `ctx`).
    - If no path is provided, default to the entire active repository root (`./`).
 
 2. **Boot L1 Librarian**:

@@ -166,8 +166,8 @@ If the `agy plugin` commands fail, you can manually install the plugin by copyin
 
 ##### **Validation**:
 After copying, verify that the `plugin.json` file is located exactly at:
-*   **Windows**: `%USERPROFILE%\.gemini\config\plugins\agy-cortex\plugin.json`
-*   **macOS/Linux**: `~/.gemini/config/plugins/agy-cortex/plugin.json`
+*   **Windows**: `%USERPROFILE%\.gemini\config\plugins\ctx\plugin.json`
+*   **macOS/Linux**: `~/.gemini/config/plugins/ctx/plugin.json`
 
 ---
 
@@ -180,14 +180,14 @@ Once installed (via either method), complete the following steps to activate and
     agy plugin list
     ```
 2.  **Configure Global Orchestration Override**:
-    To guarantee the main agent always boots into Orchestrator mode and doesn't sidestep the plugin, you **MUST** append the following directive to your **global `gemini.md` or `agents.md`** file (located in your home directory, e.g. `~/.gemini/antigravity-cli/gemini.md` or `%USERPROFILE%\.gemini\antigravity-cli\gemini.md`):
+    To guarantee the main agent always boots into Orchestrator mode and doesn't sidestep the plugin, you **MUST** append the following directive to your **global rules file** (which resides in your `.gemini` profile settings):
     ```markdown
     [!IMPORTANT]
     **Orchestration Priority**
     - If the `ctx` plugin is active, suspend direct execution and defer strictly to the Orchestrator routing
-      rules defined in `rules/routing.md` (unless `/toggle-routing` has set `model_routing_enabled` to `false`).
-
+      rules defined in the global plugin folder (e.g., `%USERPROFILE%\.gemini\config\plugins\ctx\rules\routing.md` on Windows or `~/.gemini/config/plugins/ctx/rules/routing.md` on macOS/Linux), unless `/toggle-routing` has set `model_routing_enabled` to `false`.
     ```
+
 3.  **Adopt the `DEVELOPER.md` Standard**:
     To ensure your custom project-specific developer rules are inherited by execution workers without logic conflicts:
     - **Do NOT** use a local project-level `gemini.md` or `agents.md` file in your repositories.
