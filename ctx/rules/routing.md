@@ -4,7 +4,7 @@ CRITICAL MANDATE: Under no circumstances should you (the main agent) attempt to 
 
 ## 0. Lazy Subagent Auto-Definition (Ephemeral Session Bootstrapping)
 To support seamless multi-agent orchestration in fresh conversation sessions without requiring manual registration, the Orchestrator MUST enforce a **Lazy Subagent Definition protocol**:
-- Before executing any `invoke_subagent` call for any specialized subagent (e.g., `router`, `librarian`, `junior`, `engineer`, `tester`, `senior`, `architect`, `decomposer`, `integrator`, `planner`), the Orchestrator MUST check if that `TypeName` has already been defined in the active conversation context.
+- Before executing any `invoke_subagent` call for any specialized subagent (e.g., `router`, `librarian`, `junior`, `engineer`, `tester`, `senior`, `architect`, `decomposer`, `integrator`, `planner`, `pro_engineer`), the Orchestrator MUST check if that `TypeName` has already been defined in the active conversation context.
 - If it has NOT been defined, the Orchestrator MUST immediately point-read its JSON specification from `%USERPROFILE%\.gemini\config\plugins\ctx\agents\<agent_name>.json` (on Windows) or `~/.gemini/config/plugins/ctx/agents/<agent_name>.json` (on macOS/Linux) using `read_file`, and define it using the `define_subagent` tool (mapping details, prompt, and toolsets as specified in the JSON) before invoking it.
 - This dynamic on-demand bootstrapping guarantees subagents are always available and initialized instantly with zero upfront token waste.
 
@@ -12,7 +12,7 @@ To support seamless multi-agent orchestration in fresh conversation sessions wit
 Prior to running the triage loop, you MUST inspect the user's prompt to check if they are running a slash command or requesting orchestration state changes.
 
 1. **If a model routing toggle request or `/toggle-routing` is detected**:
-   - Immediately read the global configuration file (resolving `%USERPROFILE%\.gemini\config\plugins\ctx\config.json` on Windows, or `~/.gemini/config/plugins/ctx/config.json` on macOS/Linux) using `read_file`. Do NOT modify or read any local fallback workspace configurations, and do NOT run directory lists, grep, or search scans.
+   - Immediately read the global configuration file (resolving `%USERPROFILE%\.gemini\config\plugins\ctx\config.json` on Windows, or `~/.gemini/config\plugins\ctx\config.json` on macOS/Linux) using `read_file`. Do NOT modify or read any local fallback workspace configurations, and do NOT run directory lists, grep, or search scans.
    - Read the current value of `model_routing_enabled`. Toggle it (if `true`, set to `false`; if `false` or missing, set to `true`).
    - Save the file back to the exact path from which it was read using `replace` or `write_file` immediately, and output the beautifully formatted visual card announcing the new state (from `skills/toggle-routing/SKILL.md`).
    - Terminate the turn immediately.
@@ -127,11 +127,14 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
      - Terminate the turn.
 
 4. **Immediate Triage:** If no plan is active, spawn the lightweight `router` subagent (`router.json`) using `invoke_subagent` to analyze the prompt.
+   - **Economy Mode Router Framing**: If `execution_mode` is `"economy"`, the Orchestrator MUST append the following routing instruction to the `Prompt` argument sent to the router:
+     `"ECONOMY ROUTING PROTOCOL: In Economy Mode, you MUST prioritize the L2 Junior (Gemini 3.1 Flash) over L3 Engineer (Gemini 3.5 Flash) for all simple-to-medium tasks. Route to L2 Junior for standard feature additions, boilerplate scaffolding, or single-file bug fixes, expanding its usual scope. Route to L3 Engineer for multi-file features or bug fixes. If a task requires deep reasoning or complex logic, route to the pro_engineer (L3.5 Pro - Gemini 3.1 Pro) to act as a direct worker. Avoid routing to L4 Senior under Economy Mode."`
 
 5. **Parse Triage Decision:** The `router` subagent will return a structured JSON object containing:
    - `action`: `"route"`, `"parallel_route"`, or `"clarify"`
-   - `route_to`: (if routing) the target subagent tier (`librarian`, `junior`, `engineer`, `tester`, `senior`, or `architect`)
+   - `route_to`: (if routing) the target subagent tier (`librarian`, `junior`, `engineer`, `tester`, `senior`, `architect`, or `pro_engineer`)
    - `reason`: a brief description of the decision.
+   - **Pro Engineer Safeguard**: If `route_to` is `"pro_engineer"` AND `execution_mode` is `"performance"`, the Orchestrator MUST override the routing target to `"engineer"`, as `pro_engineer` is strictly only allowed to be used when running in Economy Mode.
    - *Note*: If `experimental_parallel_routing` is `false` in `config.json` and the router returns `parallel_route`, fallback to routing to the single highest-tier agent.
 
 6. **Announce Selection:** Before spawning further subagents, output a visible message to the user announcing the triage result and quoting the specific `reason` returned by the router.
@@ -148,8 +151,8 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
        - **If `warrants_plan` is `true`**: The Planner writes `.cortex_plan.md` to the repository root. The Orchestrator automatically appends `.cortex_plan.md` to the project's `.gitignore` file. It then halts execution and prints the stunning ASCII card below alongside the plan contents, prompting the user: *"Reply with `/approve` to start execution, or provide feedback to refine this plan."*
        - Terminate the turn immediately.
    - **If `planning_mode_enabled` is `false`** (or target is L1, L4, L5, or `execution_mode` is `"economy"`):
-     - Spawn **L1 (Librarian)** if target is L2/L3/L3.5 to write the blackboard, then spawn the worker tier directly.
-     - **Economy Mode Single-Agent Autonomy Directive**: If `execution_mode` is `"economy"` and the target is a worker (L2 or L3), the Orchestrator MUST append the following directive at the very beginning of the subagent's `Prompt` argument:
+     - Spawn **L1 (Librarian)** if target is L2/L3/L3.5/pro_engineer to write the blackboard, then spawn the worker tier directly.
+     - **Economy Mode Single-Agent Autonomy Directive**: If `execution_mode` is `"economy"` and the target is a worker (L2, L3, or pro_engineer), the Orchestrator MUST append the following directive at the very beginning of the subagent's `Prompt` argument:
        `"CRITICAL DIRECTIVE: You are executing in ECONOMY MODE. To optimize resource consumption, high-level multi-agent planning and approval gates have been bypassed. You are granted full autonomy to plan and execute directly. If the task is complex, you MUST construct a step-by-step implementation checklist internally within your thinking blocks or a private workspace file to maintain code structure, transaction safety, and invariant compliance, and execute the edits and test verifications in a direct, uninterrupted loop."`
 
    ### [PATH B]: Experimental Parallel Route
@@ -182,6 +185,7 @@ Prior to running the triage loop, you MUST inspect the user's prompt to check if
      - L2 (Junior): `>>> [L2 | JUNIOR | Gemini 3.1 Flash]`
      - L3 (Engineer): `>>> [L3 | ENGINEER | Gemini 3.5 Flash]`
      - L3.5 (Tester): `>>> [L3.5 | TESTER | Gemini 3.5 Flash]`
+     - L3.5 (Pro Engineer): `>>> [L3.5 | PRO ENGINEER | Gemini 3.1 Pro]`
      - L4 (Senior): `>>> [L4 | SENIOR | Gemini 3.1 Pro]`
      - L5 (Architect): `>>> [L5 | ARCHITECT | Gemini 3.5 Pro]`
      - Decomposer: `>>> [UTILITY | DECOMPOSER | Gemini 3.1 Pro]`
