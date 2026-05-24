@@ -49,6 +49,7 @@ Each agent profile resides under `ctx/agents/` as a structured JSON file detaili
 | **L1** | **Librarian** | `librarian.json` | `Gemini 2.5 Flash Lite` | `read_file`, `grep_search`, `glob`, `list_dir` | Codebase discovery, context filtering, and blackboard creation. |
 | **L2** | **Junior** | `junior.json` | `Gemini 3.1 Flash` | `read_file`, `replace`, `write_file`, `run_command` | Boilerplate drafting, scaffolding, and syntax checks. |
 | **L3** | **Engineer** | `engineer.json` | `Gemini 3.5 Flash` | `read_file`, `replace`, `run_test_suite`, `run_linter`, `git_*` | Full feature implementations and complete testing sweeps. |
+| **L3.5** | **Pro Engineer** | `pro_engineer.json` | `Gemini 3.1 Pro` | `read_file`, `replace`, `write_file`, `run_command`, `git_*` | Advanced worker executing direct high-reasoning code modification under Economy Mode. |
 | **L4** | **Senior** | `senior.json` | `Gemini 3.1 Pro` | `invoke_agent`, `read_file`, `git_*` | Complex refactoring, strategic debugging, and ADR archiving. |
 | **L5** | **Architect** | `architect.json` | `Gemini 3.5 Pro` | `invoke_agent`, `read_file`, `git_*` | System design, core invariant management, and strategic reviews. |
 | **Utility** | **Planner** | `planner.json` | `Gemini 3.1 Pro` | `read_file`, `write_file`, `replace`, `list_directory`, `grep_search`, `submit_result` | Evaluates prompt planning merit, writes `.cortex_plan.md` plan, halts for `/approve` |
@@ -183,10 +184,11 @@ Persistent configuration and execution states are declared in `config.json`.
 {
   "model_routing_enabled": true,
   "experimental_parallel_routing": false,
-  "planning_mode_enabled": true
+  "planning_mode_enabled": true,
+  "execution_mode": "performance"
 }
 ```
-*Users can update these configuration states using conversational requests or specialized slash commands (e.g. `/toggle-routing`, `/toggle-parallel`), which the Orchestrator intercepts, writes in-place to `config.json`, and returns with styled visual toggle confirmations.*
+*Users can update these configuration states using conversational requests or specialized slash commands (e.g. `/toggle-routing`, `/toggle-parallel`, `/mode [arg]`), which the Orchestrator intercepts, writes in-place to `config.json`, and returns with styled visual confirmations.*
 
 ### 6.2 Environment-Driven Dynamic Path Resolution
 To eliminate filesystem searching latencies during interactive chats, the Orchestrator is instructed to bypass recursive directory and grep scans when reading or writing `config.json`. Instead, it resolves the configuration path dynamically using environment variables:
@@ -279,3 +281,23 @@ Slash commands complement automated routing by providing direct control channels
 1. **Draft Generation**: Spawns L2 Junior Developer to draft mock classes, database migrations, or boilerplate.
 2. **Blackboard Fallback**: Junior reads `.session_map.json` if available; otherwise, displays a fallback warning to the user but continues.
 3. **Handoff Verification**: Spawns L3 Core Engineer to compile, lint, and verify the newly generated files automatically.
+
+---
+
+## 10. Economy vs. Performance Execution Modes
+
+To give users direct control over resource consumption and implementation quality, `agy-cortex` supports two selectable execution modes:
+
+### 10.1 Operational Characteristics
+
+#### Economy Mode
+*   **Token Savings**: Halts are bypassed. The separate high-level multi-agent **Planner subagent** and the user-in-the-loop `.cortex_plan.md` `/approve` gate are completely skipped.
+*   **Refined Junior Prioritization**: The Orchestrator frames the L0 Router prompt dynamically, expanding L2 Junior's (Gemini 3.1 Flash) boundaries to handle simple-to-medium tasks (such as boilerplate, single-file bug fixes, or scaffold templates) to leverage the cheapest Flash tier.
+*   **L3.5 Pro Core Worker (`pro_engineer`)**: When a task has high complexity or deep reasoning needs, the Orchestrator boots `pro_engineer` (powered by Gemini 3.1 Pro) as an active worker. It executes file-writing operations directly, completely bypassing L4 Senior's delegation constraints.
+*   **Pro Mode Safeguard**: The `pro_engineer` agent is strictly sandboxed to run ONLY when `execution_mode` is set to `"economy"`. If running in Performance Mode, the Orchestrator overrides routing to block it, falling back to standard L3/L4/L5 pipelines.
+*   **Single-Agent Autonomy**: Workers are injected with direct autonomy instructions. For complex changes, the single worker performs internal planning and lint sweeps within its own context to guarantee compiler and ACID safety.
+
+#### Performance Mode
+*   **Maximum Architectural Discipline**: Bypasses direct worker dispatch. The Planner subagent (`Gemini 3.1 Pro`) maps the prompt against invariants, compiles `.cortex_plan.md`, and halts for explicit user `/approve` authorization.
+*   **Isolated Subagents**: Restricts L3.1 Pro to read-only strategy delegation (L4 Senior) and leverages Flash workers strictly for scoped execution targets, minimizing context dilution at the cost of framework startup and confirmation gates.
+

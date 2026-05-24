@@ -68,6 +68,7 @@ Each subagent has a dedicated profile and is restricted to a narrow, optimized s
 *   **L1 Librarian** (`Gemini 2.5 Flash Lite`): Codebase cataloging and summarization.
 *   **L2 Junior Developer** (`Gemini 3.1 Flash`): Rapid boilerplate drafting and syntax checking.
 *   **L3 Core Engineer** (`Gemini 3.5 Flash`): Full feature implementations and test suite verification.
+*   **L3.5 Pro Engineer** (`Gemini 3.1 Pro`): Advanced worker performing direct high-reasoning execution under Economy Mode.
 *   **L4 Senior Developer** (`Gemini 3.1 Pro`): Refactoring, strategic debugging, and automatic ADR curation.
 *   **L5 Lead Architect** (`Gemini 3.5 Pro`): High-level system design, strategic pivots, and invariants owner.
 
@@ -88,7 +89,12 @@ For complex multi-layered tasks, `agy-cortex` enables an experimental concurrent
 ### 5. Dynamic Plan Mode
 When Plan Mode is enabled, the system evaluates the prompt against the codebase to determine if a plan is warranted (`warrants_plan`). If true, a dedicated **Planner** (`Gemini 3.1 Pro`) drafts a high-fidelity implementation plan (`.cortex_plan.md`) and halts for your explicit approval (`/approve`) before execution.
 
-### 6. `DEVELOPER.md` Custom Rule Inheritance
+### 6. Economy & Performance Execution Modes
+Users can select between two execution modes using `/mode [economy|performance]` or `/toggle-mode`:
+*   **Economy Mode**: Optimizes for token savings and speed. Bypasses the separate Planner subagent and user `/approve` gates. Workers execute directly with full single-agent autonomy. Simple-to-medium tasks are dynamically triaged to the cheaper **L2 Junior** Flash model (Junior Prioritization), while complex algorithmic tasks route to the direct **L3.5 Pro Engineer** (`gemini-3.1-pro`) worker.
+*   **Performance Mode**: The standard high-discipline pipeline. Generates detailed plans via the Planner and halts for user-in-the-loop `/approve` confirmation to ensure optimal transaction-safe architecture.
+
+### 7. `DEVELOPER.md` Custom Rule Inheritance
 Specialist workers (`junior.json` and `engineer.json`) automatically inherit your custom coding conventions, formatting guidelines, CSS/styling standardizations, and interaction preferences. 
 - **Separation of Concerns**: Simply drop a `DEVELOPER.md` or `CORTEX.md` in your project root (or a global `developer.md`/`cortex.md` in your home folder). The **L1 Librarian** dynamically reads and populates these rules to the blackboard, completely isolating styling from orchestrator routing commands and eliminating any risk of logic loops.
 

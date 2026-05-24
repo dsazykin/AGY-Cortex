@@ -15,6 +15,7 @@ Here is a summary of all available slash commands in the AGY Cortex ecosystem:
 | [`/toggle-routing`](#/toggle-routing) | Configuration | Enable/disable multi-agent triage loop | Coordinator (Main Agent) |
 | [`/toggle-planning`](#/toggle-planning) | Configuration | Enable/disable implementation plan loops | Coordinator (Main Agent) |
 | [`/toggle-parallel`](#/toggle-parallel) | Configuration | Enable/disable isolated parallel work | Coordinator (Main Agent) |
+| [`/toggle-mode`](#/toggle-mode) | Configuration | Toggle or set execution mode (Economy/Performance) | Coordinator (Main Agent) |
 | [`/status`](#/status) | Info & Diagnostics | Print real-time pipeline status dashboard | Coordinator (Main Agent) |
 | [`/question <prompt>`](#/question) | Direct Inquiry | Bypass triage and speak directly to L0 | Coordinator (Main Agent) |
 | [`/analyze [path]`](#/analyze) | Discover | Scan codebase structure & build blackboard | L1 Librarian (`librarian.json`) |
@@ -61,8 +62,22 @@ Enables or disables **Isolated Parallel Workspaces**.
 
 ---
 
+### `/toggle-mode`
+Toggles or sets the active **Execution Mode** (Economy or Performance).
+*   **Aliases:** `/mode [economy|performance]`
+*   **Default State:** `performance`
+*   **Syntax:**
+    *   `/toggle-mode` or `/mode` (without arguments): Toggles the state between Economy and Performance.
+    *   `/mode economy`: Sets the execution directly to Economy Mode.
+    *   `/mode performance`: Sets the execution directly to Performance Mode.
+*   **Behavior:**
+    *   **Economy Mode:** Bypasses Plan subagent generation and the `/approve` confirmation gate. Workers (L2/L3) execute directly with full single-agent autonomy. Medium tasks prioritize **L2 Junior** Flash, and complex strategic logic routes to the direct **L3.5 Pro Engineer** (`gemini-3.1-pro`) worker.
+    *   **Performance Mode:** Enables full planning loops (`.cortex_plan.md`) with explicit user approval halts to ensure maximum structural discipline.
+
+---
+
 ### `/status`
-Displays a real-time status card showing your configuration settings and active blackboard registry status.
+Displays a real-time status card showing your configuration settings, execution mode, and active blackboard registry status.
 *   **Aliases:** `/info`
 *   **Example Output:**
     ```text
@@ -70,8 +85,11 @@ Displays a real-time status card showing your configuration settings and active 
     │  🧬  AGY CORTEX : PIPELINE SYSTEM STATUS               │
     ├────────────────────────────────────────────────────────┤
     │                                                        │
-    │  [Routing]  [ ACTIVE ]    •  [Planning] [ ACTIVE ]     │
-    │  [Parallel] [ ACTIVE ]    •  [Blackboard] [ LOADED ]   │
+    │  [Routing]    [ ACTIVE ]                               │
+    │  [Planning]   [ ACTIVE ]                               │
+    │  [Parallel]   [ ACTIVE ]                               │
+    │  [Mode]       [ PERFORMANCE ]                          │
+    │  [Blackboard] [ LOADED ]                               │
     │                                                        │
     │  » Blackboard: 12 files, 48 symbols mapped            │
     │  » Plan File: .cortex_plan.md (Absent)                 │
@@ -124,6 +142,7 @@ Force-delegates a task directly to a specific specialist subagent, completely by
     *   `junior` (L2) — Scaffolding and quick drafts.
     *   `engineer` (L3) — Core feature implementation.
     *   `tester` (L3.5) — Testing and test suite generation.
+    *   `pro_engineer` (L3.5 Pro) — Direct high-reasoning execution worker (Economy Mode only).
     *   `senior` (L4) — Sandbox reviews and ADR curation.
     *   `architect` (L5) — Design analysis and strategic pivots.
     *   `decomposer` (Utility) — Concurrent division of tasks.
