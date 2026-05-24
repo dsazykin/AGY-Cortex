@@ -31,9 +31,10 @@ Use the following premium ASCII structure:
 │  🧬  AGY CORTEX : PIPELINE SYSTEM STATUS               │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  [Routing]  [ ACTIVE/BYPASSED ]                        │
-│  [Planning] [ ACTIVE/BYPASSED ]                        │
-│  [Parallel] [ ACTIVE/BYPASSED ]                        │
+│  [Routing]    [ ACTIVE/BYPASSED ]                      │
+│  [Planning]   [ ACTIVE/BYPASSED ]                      │
+│  [Parallel]   [ ACTIVE/BYPASSED ]                      │
+│  [Mode]       [ ECONOMY/PERFORMANCE ]                  │
 │  [Blackboard] [ LOADED/EMPTY ]                         │
 │                                                        │
 │  » Blackboard details are shown here...                │
