@@ -5,3 +5,4 @@ cortex_efficiency_report.md
 .antigravitycli/*
 .session_map.json
 .cortex_plan.md
+hook_debug.log
